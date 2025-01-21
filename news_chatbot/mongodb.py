@@ -12,11 +12,10 @@ db = client["news_database"] #데이터 베이스 이름 설정
 
 
 #수집할 기업 리스트 정의
-# company_df = pd.read_csv('./data/nasdaq_100.csv')
-# company_name_list = company_df ['Symbol'].tolist()
-# companies = [company.strip() for company in company_name_list]
-companies = ['IONQ']
-print(companies)
+company_df = pd.read_csv('./data/nasdaq_100.csv')
+company_name_list = company_df ['Symbol'].tolist()
+companies = [company.strip() for company in company_name_list]
+
     
 for company in companies :
     try : 
