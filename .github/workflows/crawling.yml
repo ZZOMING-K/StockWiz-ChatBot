@@ -47,7 +47,7 @@ jobs:
       # mongodb.py 실행
       - name: Run mongodb.py script
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}  # GitHub Secrets에서 MONGO_URI를 환경 변수로 설정
+          MONGO_URI: ${{ secrets.MONGO_URL }}  # GitHub Secrets에서 MONGO_URI를 환경 변수로 설정
         run: |
           cd news_chatbot  # news_chatbot 폴더로 이동
           python mongodb.py  # mongodb.py 파일 실행
