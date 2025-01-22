@@ -12,37 +12,62 @@ on:
 jobs:
   collect_news_data:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # 코드 체크아웃 (minkyeong 브랜치)
+      # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Python 설치
+      # 2. Python 설치
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10.6'
 
-      # 요구 사항 설치 (requirements.txt)
+      # 3. 현재 러너의 공용 IP 가져오기
+      - name: Get the public IP of this runner
+        id: get_runner_ip
+        shell: bash
+        run: |
+          echo "ip_address=$(curl https://checkip.amazonaws.com)" >> "$GITHUB_OUTPUT"
+
+      # 4. MongoDB Atlas CLI 설정
+      - name: Setup MongoDB Atlas CLI
+        uses: mongodb/atlas-github-action@v0.2.0
+
+      # 5. 러너의 IP를 MongoDB Atlas 화이트리스트에 추가
+      - name: Add runner IP to MongoDB access list
+        shell: bash
+        env:
+          MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
+        run: |
+          atlas accessLists create ${{ steps.get_runner_ip.outputs.ip_address }} \
+            --type ipAddress \
+            --projectId $MONGODB_ATLAS_PROJECT_ID \
+            --comment "Temporary access for GitHub Actions"
+
+      # 6. 의존성 설치 (requirements.txt)
       - name: Install dependencies
         run: |
           cd news_chatbot  # news_chatbot 폴더로 이동
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-   # GitHub Actions Runner IP를 MongoDB Atlas에 추가
-      - name: Add GitHub Actions Runner IP to Atlas
-        uses: mongodb/atlas-github-action@v0.2.0
-        with:
-          public-api-key: ${{ secrets.MONGODB_ATLAS_PUBLIC_API_KEY }}
-          private-api-key: ${{ secrets.MONGODB_ATLAS_PRIVATE_API_KEY }}
-          add-current-ip: true
 
-      # mongodb.py 실행
+      # 7. Python 스크립트 실행 (mongodb.py)
       - name: Run mongodb.py script
         env:
-          MONGO_URI: ${{ secrets.MONGO_URL }}  # GitHub Secrets에서 MONGO_URI를 환경 변수로 설정
+          MONGO_URL: ${{ secrets.MONGO_URL }}  # MongoDB Atlas 연결 문자열 환경 변수 설정
         run: |
           cd news_chatbot  # news_chatbot 폴더로 이동
-          python mongodb.py  # mongodb.py 파일 실행
+          python mongodb.py
+
+      # 8. 작업 완료 후 MongoDB Atlas에서 러너의 IP 제거
+      - name: Remove runner IP from MongoDB access list
+        if: always()
+        shell: bash
+        env:
+          MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
+        run: |
+          atlas accessLists delete ${{ steps.get_runner_ip.outputs.ip_address }} \
+            --projectId $MONGODB_ATLAS_PROJECT_ID \
+            --force
