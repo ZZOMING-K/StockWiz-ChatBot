@@ -30,6 +30,9 @@ jobs:
           cd news_chatbot  # news_chatbot 폴더로 이동
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          
+      - name: Check MONGO_URL environment variable
+        run: echo "MONGO_URL is ${{ secrets.MONGO_URL }}"
 
       # mongodb.py 실행
       - name: Run mongodb.py script
