@@ -35,7 +35,7 @@ jobs:
       - name: Setup MongoDB Atlas CLI
         uses: mongodb/atlas-github-action@v0.2.0
 
-      # 5. 러너의 IP를 MongoDB Atlas 화이트리스트에 추가
+      # 5. 러너의 IP를 MongoDB 화이트리스트에 추가
       - name: Add runner IP to MongoDB access list
         shell: bash
         env:
@@ -61,7 +61,7 @@ jobs:
           cd news_chatbot  # news_chatbot 폴더로 이동
           python mongodb.py
 
-      # 8. 작업 완료 후 MongoDB Atlas에서 러너의 IP 제거
+      # 8. 작업 완료 후 MongoDB 화이트리스트에서 러너의 IP 제거
       - name: Remove runner IP from MongoDB access list
         if: always()
         shell: bash
