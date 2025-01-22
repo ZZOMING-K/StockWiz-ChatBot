@@ -74,3 +74,4 @@ jobs:
           atlas accessLists delete ${{ steps.get_runner_ip.outputs.ip_address }} \
             --projectId $MONGODB_ATLAS_PROJECT_ID \
             --force
+
