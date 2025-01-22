@@ -11,8 +11,15 @@ from pymongo.server_api import ServerApi
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 mongo_url = os.getenv("MONGO_URL") #환경변수에서 MONGO_URL 가져오기 
-print(f"MongoDB URL: {mongo_url}")
 client = MongoClient(mongo_url , server_api=ServerApi('1')) #MongoDB 연결 
+
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+    
 db = client["news_database"] #데이터 베이스 이름 설정 
 
 #수집할 기업 리스트 정의
