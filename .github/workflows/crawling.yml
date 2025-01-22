@@ -1,0 +1,52 @@
+name: News Data Collection
+
+on:
+  push:
+    branches:
+      - minkyeong  # minkyeong 브랜치에서만 실행
+  workflow_dispatch:  # 수동 실행 허용
+  schedule:
+    # 매일 23시(UTC) 실행
+    - cron: '0 23 * * *'
+
+jobs:
+  collect_news_data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 코드 체크아웃 (minkyeong 브랜치)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Python 설치
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # 요구 사항 설치 (requirements.txt)
+      - name: Install dependencies
+        run: |
+          cd news_chatbot  # news_chatbot 폴더로 이동
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # MongoDB 설치
+      - name: Install MongoDB
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mongodb
+
+      # MongoDB 서버 실행
+      - name: Start MongoDB
+        run: |
+          sudo service mongodb start
+          sleep 5  # MongoDB가 완전히 시작될 때까지 잠시 기다림
+
+      # mongodb.py 실행
+      - name: Run mongodb.py script
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URL }}  # GitHub Secrets에서 MONGO_URI를 환경 변수로 설정
+        run: |
+          cd news_chatbot  # news_chatbot 폴더로 이동
+          python mongodb.py  # mongodb.py 파일 실행
