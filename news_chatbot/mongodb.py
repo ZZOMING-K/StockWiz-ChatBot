@@ -42,7 +42,9 @@ for idx , company in enumerate(companies) :
                 logging.info(f"{idx}. Inserted {len(news_data)} documents into {collection_name}")
             
             except pymongo.errors.BulkWriteError as e:
-                logging.info(f"{idx}. All documents skipped for {company} due to duplication.")
+                inserted_count = len(news_data) - len(e.details.get('writeErrors', []))
+                skipped_count = len(e.details.get('writeErrors', []))
+                logging.info(f"{idx}. Inserted {inserted_count} documents into {collection_name}. Skipped {skipped_count} due to duplication.")
         
         else : 
             logging.info(f"{idx}. No news data found for {company}")
