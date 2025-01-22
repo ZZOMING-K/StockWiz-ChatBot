@@ -10,7 +10,7 @@ jobs:
   collect_news_data:
     runs-on: ubuntu-latest
     # 해당 브랜치에서 실행되도록 설정
-    if: github.ref == 'refs/heads/minkyeong'
+    if: github.ref == 'refs/main/minkyeong'
     
     steps:
       # 코드 체크아웃 (dev 브랜치)
@@ -47,7 +47,7 @@ jobs:
       # mongodb.py 실행
       - name: Run mongodb.py script
         env:
-          MONGO_URI: ${{ secrets.MONGO_URL }}  # GitHub Secrets에서 MONGO_URI를 환경 변수로 설정
+          MONGO_URL: ${{ secrets.MONGO_URL }}  # GitHub Secrets에서 MONGO_URI를 환경 변수로 설정
         run: |
           cd news_chatbot  # news_chatbot 폴더로 이동
           python mongodb.py  # mongodb.py 파일 실행
