@@ -10,7 +10,7 @@ from pymongo.server_api import ServerApi
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
-mongo_url = os.getenv("MONGO_URL") #환경변수에서 MONGO_URL 가져오기 
+mongo_url = os.getenv("MONGO_URI") #환경변수에서 MONGO_URL 가져오기 
 client = MongoClient(mongo_url , server_api=ServerApi('1')) #MongoDB 연결 
 
 # Send a ping to confirm a successful connection
