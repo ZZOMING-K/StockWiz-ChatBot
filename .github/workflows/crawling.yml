@@ -27,51 +27,51 @@ jobs:
       # 3. 현재 러너의 공용 IP 가져오기
       - name: Get the public IP of this runner
         id: get_runner_ip
-        shell: bash
         run: |
           echo "ip_address=$(curl https://checkip.amazonaws.com)" >> "$GITHUB_OUTPUT"
 
-      # 4. MongoDB Atlas CLI 설정 및 인증 정보 초기화
-      - name: Setup MongoDB Atlas CLI and Authenticate
-        uses: mongodb/atlas-github-action@v0.2.0
-        with:
-          publicApiKey: ${{ secrets.ATLAS_PUBLIC_KEY }}
-          privateApiKey: ${{ secrets.ATLAS_PRIVATE_KEY }}
-
-      # 5. 러너의 IP를 MongoDB 화이트리스트에 추가
-      - name: Add runner IP to MongoDB access list
-        shell: bash
-        env:
-          MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
+      # 4. MongoDB Atlas API로 러너의 IP 추가
+      - name: Permit the runner to access MongoDB Atlas
         run: |
-          atlas accessLists create ${{ steps.get_runner_ip.outputs.ip_address }} \
-            --type ipAddress \
-            --projectId $MONGODB_ATLAS_PROJECT_ID \
-            --comment "Temporary access for GitHub Actions"
+          curl \
+            --data '[{"ipAddress": "${{ steps.get_runner_ip.outputs.ip_address }}", "comment": "Temporary GitHub Actions Access"}]' \
+            --digest \
+            --header 'Accept: application/vnd.atlas.2023-02-01+json' \
+            --header 'Content-Type: application/json' \
+            --user "$USERNAME:$PASSWORD" \
+            "https://cloud.mongodb.com/api/atlas/v2/groups/$GROUP_ID/accessList"
+        env:
+          GROUP_ID: ${{ secrets.ATLAS_GROUP_ID }}
+          PASSWORD: ${{ secrets.ATLAS_PRIVATE_KEY }}
+          USERNAME: ${{ secrets.ATLAS_PUBLIC_KEY }}
 
-      # 6. 의존성 설치 (requirements.txt)
+      # 5. 의존성 설치 (requirements.txt)
       - name: Install dependencies
         run: |
           cd news_chatbot  # news_chatbot 폴더로 이동
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 7. Python 스크립트 실행 (mongodb.py)
+      # 6. Python 스크립트 실행 (mongodb.py)
       - name: Run mongodb.py script
         env:
-          MONGO_URL: ${{ secrets.MONGO_URI }}  # MongoDB Atlas 연결 문자열 환경 변수 설정
+          MONGO_URI: ${{ secrets.MONGO_URI }}  # MongoDB Atlas 연결 문자열 환경 변수 설정
         run: |
           cd news_chatbot  # news_chatbot 폴더로 이동
           python mongodb.py
 
-      # 8. 작업 완료 후 MongoDB 화이트리스트에서 러너의 IP 제거
-      - name: Remove runner IP from MongoDB access list
+      # 7. MongoDB 화이트리스트에서 러너의 IP 제거
+      - name: Revoke the runner's access to MongoDB Atlas
         if: always()
-        shell: bash
-        env:
-          MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
         run: |
-          atlas accessLists delete ${{ steps.get_runner_ip.outputs.ip_address }} \
-            --projectId $MONGODB_ATLAS_PROJECT_ID \
-            --force
+          curl \
+            --digest \
+            --header 'Accept: application/vnd.atlas.2023-02-01+json' \
+            --request 'DELETE' \
+            --user "$USERNAME:$PASSWORD" \
+            "https://cloud.mongodb.com/api/atlas/v2/groups/$GROUP_ID/accessList/${{ steps.get_runner_ip.outputs.ip_address }}"
+        env:
+          GROUP_ID: ${{ secrets.ATLAS_GROUP_ID }}
+          PASSWORD: ${{ secrets.ATLAS_PRIVATE_KEY }}
+          USERNAME: ${{ secrets.ATLAS_PUBLIC_KEY }}
 
