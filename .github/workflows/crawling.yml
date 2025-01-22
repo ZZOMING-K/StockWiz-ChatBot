@@ -40,8 +40,8 @@ jobs:
         shell: bash
         env:
           MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
-          ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_API_KEY }}
-          ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_API_KEY }}
+          ATLAS_PUBLIC_KEY: ${{ secrets.ATLAS_PUBLIC_KEY }}
+          ATLAS_PRIVATE_KEY: ${{ secrets.ATLAS_PRIVATE_KEY }}
         run: |
           atlas accessLists create ${{ steps.get_runner_ip.outputs.ip_address }} \
             --type ipAddress \
@@ -58,7 +58,7 @@ jobs:
       # 7. Python 스크립트 실행 (mongodb.py)
       - name: Run mongodb.py script
         env:
-          MONGO_URL: ${{ secrets.MONGO_URL }}  # MongoDB Atlas 연결 문자열 환경 변수 설정
+          MONGO_URL: ${{ secrets.MONGO_URI }}  # MongoDB Atlas 연결 문자열 환경 변수 설정
         run: |
           cd news_chatbot  # news_chatbot 폴더로 이동
           python mongodb.py
@@ -69,8 +69,8 @@ jobs:
         shell: bash
         env:
           MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
-          ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_API_KEY }}
-          ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_API_KEY }}
+          ATLAS_PUBLIC_KEY: ${{ secrets.ATLAS_PUBLIC_KEY }}
+          ATLAS_PRIVATE_KEY: ${{ secrets.ATLAS_PRIVATE_KEY }}
         run: |
           atlas accessLists delete ${{ steps.get_runner_ip.outputs.ip_address }} \
             --projectId $MONGODB_ATLAS_PROJECT_ID \
