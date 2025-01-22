@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10.6'
 
       # 요구 사항 설치 (requirements.txt)
       - name: Install dependencies
@@ -30,18 +30,6 @@ jobs:
           cd news_chatbot  # news_chatbot 폴더로 이동
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      # MongoDB 설치
-      - name: Install MongoDB
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mongodb
-
-      # MongoDB 서버 실행
-      - name: Start MongoDB
-        run: |
-          sudo service mongodb start
-          sleep 5  # MongoDB가 완전히 시작될 때까지 잠시 기다림
 
       # mongodb.py 실행
       - name: Run mongodb.py script
