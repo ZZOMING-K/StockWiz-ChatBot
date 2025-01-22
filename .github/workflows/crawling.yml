@@ -31,8 +31,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Check MONGO_URL environment variable
-        run: echo "MONGO_URL is ${{ secrets.MONGO_URL }}"
+   # GitHub Actions Runner IP를 MongoDB Atlas에 추가
+      - name: Add GitHub Actions Runner IP to Atlas
+        uses: mongodb/atlas-github-action@v0.2.0
+        with:
+          public-api-key: ${{ secrets.MONGODB_ATLAS_PUBLIC_API_KEY }}
+          private-api-key: ${{ secrets.MONGODB_ATLAS_PRIVATE_API_KEY }}
+          add-current-ip: true
 
       # mongodb.py 실행
       - name: Run mongodb.py script
