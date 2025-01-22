@@ -35,10 +35,9 @@ jobs:
       - name: Setup MongoDB Atlas CLI
         uses: mongodb/atlas-github-action@v0.2.0
 
-      # 5. MongoDB 인증 설정 (API 키 사용)
       - name: Authenticate with MongoDB Atlas CLI
         run: |
-          echo "${{ secrets.ATLAS_PUBLIC_KEY }}" | atlas config init --apiKey ${{ secrets.ATLAS_PRIVATE_KEY }}
+          atlas auth login --publicKey "${{ secrets.ATLAS_PUBLIC_KEY }}" --privateKey "${{ secrets.ATLAS_PRIVATE_KEY }}"
 
       # 6. 러너의 IP를 MongoDB 화이트리스트에 추가
       - name: Add runner IP to MongoDB access list
