@@ -1,17 +1,15 @@
 name: News Data Collection
 
 on:
-  push:
-    branches:
-      - minkyeong  # minkyeong 브랜치에서만 실행
-  workflow_dispatch:  # 수동 실행 허용
   schedule:
     # 매일 23시(UTC) 실행
     - cron: '0 23 * * *'
+  workflow_dispatch:  # 수동으로 실행할 수 있는 옵션 추가
 
 jobs:
   collect_news_data:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/minkyeong'
 
     steps:
       # 1. 코드 체크아웃
