@@ -28,7 +28,7 @@ company_name_list = company_df ['Symbol'].tolist()
 companies = [company.strip() for company in company_name_list]
 
     
-for company in companies :
+for idx , company in enumerate(companies) :
     try : 
         news_data = NewsData(company_name=company)
         
@@ -39,13 +39,13 @@ for company in companies :
             
             try : 
                 collection.insert_many(news_data , ordered=False) #중복된 문서가 있어도 계속해서 삽입
-                logging.info(f"Inserted {len(news_data)} documents into {collection_name}")
+                logging.info(f"{idx}. Inserted {len(news_data)} documents into {collection_name}")
             
             except pymongo.errors.BulkWriteError as e:
-                logging.info(f"All documents skipped for {company} due to duplication.")
+                logging.info(f"{idx}. All documents skipped for {company} due to duplication.")
         
         else : 
-            logging.info(f"No news data found for {company}")
+            logging.info(f"{idx}. No news data found for {company}")
             
     except Exception as e:
-        logging.error(f"Error processing {company}: {e}")
+        logging.error(f"{idx}. Error processing {company}: {e}")
